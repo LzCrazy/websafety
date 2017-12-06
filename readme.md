@@ -13,10 +13,10 @@
  xss(Cross Site Scripting) 跨站脚本攻击
 原理
 程序 + 数据 = 结果
-
+```
 <div>#{count}</div> => countent:hello <script>alert(1)</script>
 => <div>hello</div>   <script>alert(1)</script>
-
+```
 作用：
 获取页面数据，获取cookies，劫持前端逻辑，发送请求。。。
 
@@ -26,6 +26,7 @@
  <div>#{count}</div>
  防御：
  可以通过转义将脚本显示出来：
+ ```
  var escapeHtml = function(str){
     str = str.replace(/</g,'&lt;');
     str = str.replace(/>/g,'&gt;');
@@ -34,9 +35,10 @@
 ctx.render('index', {posts, comments, from: escapeHtml(ctx.query.from) || ''});
     添加xss方法禁止进入：
     set.ctx('X-XSS-Protection',0)
-
+```
 
  2.HTML属性
+ ```
  <img src="#{img}" alt="">
  <img src="1" onerror="alert(1)" alt="">
  防御：(转义"&quto;")
@@ -49,14 +51,18 @@ ctx.render('index', {posts, comments, from: escapeHtml(ctx.query.from) || ''});
     //空格
     return str;
 }
+```
 
  3.JavaScript代码
+ ```
 <script>
     var data ="#{data}";
     var data = "hello";alert(1);""; 
 </script>
+```
 防御：
     转义"\"或者转化成json
+```
 var escapeForJs = function(str){
     if(!str) return '';
     str = str.replace(/\\/g,'\\\\');
@@ -139,7 +145,7 @@ CSP(Content Security Policy)内容安全策略:
     .'strict-dynamic'
 
 ctx.set(`Content-Security-Policy`:`default-src 'self'`);
-
+```
 
 
 PHP中防御XSS：
@@ -177,6 +183,7 @@ b网站向A网站请求，带A网站Cookies，不妨问A网站前端，referer�
 2.same-site属性(禁止访问cookies)
 3.不访问A网站前端
     1.在前端页面加入验证信息（图像验证码ccap ）
+    ```
      var captcha = {};
      var cache = {};
      captache.captcha = async function(ctx,next){
@@ -193,6 +200,7 @@ b网站向A网站请求，带A网站Cookies，不妨问A网站前端，referer�
      captcha.validCache = function(uid,data){
         return cache[uid] === data;
      }
+     ```
     2.验证码
 
     3.token(cookie和表单)
@@ -209,6 +217,7 @@ b网站向A网站请求，带A网站Cookies，不妨问A网站前端，referer�
     2. 禁止来自第三方网站的请求
 
 5.PHP防御CSRF
+```
     1.Cookies samesite属性
         header('Set-Cookie:test=123123;SameSite=Lax');
     2.HTTP referer头
@@ -220,6 +229,8 @@ b网站向A网站请求，带A网站Cookies，不妨问A网站前端，referer�
             var_dump($isLegal);
         }
     3.token
+```
+
 
 
 
@@ -254,6 +265,7 @@ b网站向A网站请求，带A网站Cookies，不妨问A网站前端，referer�
 
 ### 点击劫持
     防御：
+    ```
         1.javascript禁止内嵌
             if(top.location != window.location){
                 top.location = window.location;
@@ -261,6 +273,7 @@ b网站向A网站请求，带A网站Cookies，不妨问A网站前端，referer�
             1.sandbox="allow-script"
         2.X-FRAME-OPTIONS禁止内嵌（设置头部劫持）
         3.其他辅助手段(验证码)
+     ```
 
 ### 传输安全  
     HTTP传输窃听
@@ -299,10 +312,11 @@ b网站向A网站请求，带A网站Cookies，不妨问A网站前端，referer�
             md5(sha1(明文))=密文
             md5(sha256(sha1(明文)))=密文
 数据库加密：
+```
  ALTER TABLE `user` ADD COLUMN `salt` varchar(64) NULL DEFAULT "" AFTER `password`;
  明文：
 updata user set password='123123',salt=''where id=1;
-
+```
 - 密码的传输
     https
     频率限制
@@ -332,6 +346,7 @@ updata user set password='123123',salt=''where id=1;
             select id 1,2,3 from table
             select * from table union select 1,2,3 from table2
             select * from table where mid(username,1,1)="t"
+   
         危害：
             猜解密码  获取数据 删库删表 拖库
 
